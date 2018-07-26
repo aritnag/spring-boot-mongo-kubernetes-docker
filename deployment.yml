@@ -1,0 +1,224 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: mongo-persistent-storage
+  labels:
+    type: local
+spec:
+  capacity:
+    storage: 3Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/data/data01"
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: mongo-persistent-storage-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 3Gi
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  labels:
+    name: mongo
+  name: mongo-controller
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: mongo
+    spec:
+      containers:
+      - image: mongo
+        name: mongo
+        ports:
+        - name: mongo
+          containerPort: 27017
+          hostPort: 27017
+        volumeMounts:
+          - name: mongo-persistent-storage
+            mountPath: /data/db
+      volumes:
+        - name: mongo-persistent-storage
+          persistentVolumeClaim:
+            claimName: mongo-persistent-storage-claim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: mongo
+  name: mongo
+spec:
+  ports:
+    - port: 27017
+      targetPort: 27017
+  selector:
+    name: mongo
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata: 
+  name: spring-boot-mongo-docker
+spec: 
+  replicas: 3
+  template: 
+    metadata: 
+      labels: 
+        run: spring-boot-mongo-docker
+    spec: 
+      containers: 
+        - image: aritranag20/spring-boot-mongo-docker
+          name: spring-boot-mongo-docker
+          ports: 
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: spring-boot-mongo-docker
+  labels:
+      run: spring-boot-mongo-docker
+spec:
+  ports:
+    - port: 80
+      targetPort: 8080
+  selector:
+    run: spring-boot-mongo-docker
+  type: LoadBalancer
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: elastic-search-persistent-storage
+  labels:
+    type: local
+spec:
+  capacity:
+    storage: 4Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/data/data02"
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: elastic-search-persistent-storage-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 4Gi
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: elasticsearch
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch
+  labels:
+    component: elasticsearch
+spec:
+  type: LoadBalancer
+  selector:
+    component: elk
+  ports:
+  - name: http
+    port: 9200
+    protocol: TCP
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: elasticsearch-kibana
+  labels:
+    component: elk
+spec:
+  template:
+    metadata:
+      labels:
+        component: elk
+    spec:
+      serviceAccount: elasticsearch
+      containers:
+      - name: es
+        securityContext:
+          privileged: true
+          capabilities:
+            add:
+              - IPC_LOCK
+        image: elasticsearch:5.1.1
+        imagePullPolicy: Always
+        env:
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: "CLUSTER_NAME"
+          value: "myesdb"
+        - name: NODE_MASTER
+          value: "true"
+        - name: NODE_INGEST
+          value: "true"
+        - name: NODE_DATA
+          value: "true"
+        - name: HTTP_ENABLE
+          value: "true"
+        - name: "ES_JAVA_OPTS"
+          value: "-Xms256m -Xmx256m"
+        ports:
+        - containerPort: 9300
+          name: transport
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /data
+          name: elastic-search-persistent-storage
+      - name: kibana
+        image: kibana:5.1.1
+        env:
+        - name: KUBERNETES_TRUST_CERT
+          value: "true"
+        ports:
+        - containerPort: 5601
+          name: http
+          protocol: TCP
+      volumes:
+      - name: elastic-search-persistent-storage
+        persistentVolumeClaim:
+          claimName: elastic-search-persistent-storage-claim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kibana
+  namespace: default
+  labels:
+    component: elk
+    role: kibana
+spec:
+  type: LoadBalancer
+  selector:
+    component: elk
+  ports:
+  - name: http
+    port: 80
+    targetPort: 5601
+    protocol: TCP
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: elk
