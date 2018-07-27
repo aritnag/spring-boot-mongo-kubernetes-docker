@@ -5,6 +5,7 @@ import java.util.List;
 import org.davromalc.tutorial.model.Customer;
 import org.davromalc.tutorial.repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -24,6 +25,13 @@ public class CustomerRestController {
 		final List<Customer> customers = repository.findAll();
 		log.info("Fetching customers from database {}" , customers);
 		return customers;
+	}
+	
+	@RequestMapping("customer/{firstName}")
+	public Customer findAll(@PathVariable("firstName") String firstName){
+		final Customer customer = repository.findByFirstName(firstName);
+		log.info("Fetching customers from database {}" , customer);
+		return customer;
 	}
 	
 	@RequestMapping(value = "customer/" , method = RequestMethod.POST)

@@ -27,7 +27,9 @@ services:
     - 8080:8080
     links:
     - mongo
-    entrypoint: "java -Djava.security.egd=file:/dev/./urandom -jar /app.jar"
+    entrypoint: "java -Djava.security.egd=file:/dev/./urandom -jar app.jar"
+    depends_on:
+    - mongo 
     
     
 

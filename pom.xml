@@ -5,7 +5,7 @@
 
 	<groupId>org.davromalc</groupId>
 	<artifactId>spring-boot-mongo-docker</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.5</version>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -15,7 +15,7 @@
 
 	<properties>
 		<java.version>1.8</java.version>
-		<docker.image.prefix>davromalc</docker.image.prefix>
+		<docker.image.prefix>aritranag20</docker.image.prefix>
 	</properties>
 
 	<dependencies>
@@ -46,23 +46,6 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>com.spotify</groupId>
-				<artifactId>dockerfile-maven-plugin</artifactId>
-				<version>1.3.4</version>
-				<configuration>
-					<repository>${docker.image.prefix}/${project.artifactId}</repository>
-				</configuration>
-				<executions>
-					<execution>
-						<id>default</id>
-						<phase>install</phase>
-						<goals>
-							<goal>build</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 	</build>

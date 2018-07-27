@@ -14,5 +14,8 @@ public class Customer {
     public String firstName;
     public String lastName;
     public String title;
+    public String location;
+    public String country;
+    public String phonenumber;
 
 }
