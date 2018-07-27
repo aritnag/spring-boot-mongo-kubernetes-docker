@@ -26,8 +26,6 @@ services:
     ports:
     - 8080:8080
     links:
-    - mongo
-    entrypoint: "java -Djava.security.egd=file:/dev/./urandom -jar /app.jar"
-    
+    - mongo    
     
 
