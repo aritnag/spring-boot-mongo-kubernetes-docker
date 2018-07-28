@@ -5,7 +5,7 @@
 
 	<groupId>org.davromalc</groupId>
 	<artifactId>spring-boot-mongo-docker</artifactId>
-	<version>1.0.5</version>
+	<version>1.0.6</version>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -46,6 +46,58 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>io.fabric8</groupId>
+				<artifactId>docker-maven-plugin</artifactId>
+				<version>0.15.9</version>
+				<extensions>true</extensions>
+				<configuration>
+					<authConfig> <!-- or use "docker login" up front to store the credentials on the local 
+							machine. -->
+						<username>aritranag20</username>
+						<password>1qaz@WSX</password>
+					</authConfig>
+					<images>
+						<image>
+							<name>${docker.repository.name}:${version.number}</name>
+							<alias>${project.artifactId}</alias>
+							<build>
+								<from>anapsix/alpine-java:jre8</from>
+								<tags><!-- define additional tags for the image -->
+									<tag>latest</tag>
+								</tags>
+								<assembly>
+									<descriptor>assembly.xml</descriptor>
+								</assembly>
+								<ports>
+									<port>8080</port>
+								</ports>
+								<cmd>
+									<shell>
+										java -jar /maven/${project.artifactId}-${version.number}.jar
+									</shell>
+								</cmd>
+							</build>
+						</image>
+					</images>
+				</configuration>
+				<executions>
+					<execution>
+						<id>build-docker-image</id>
+						<phase>package</phase>
+						<goals>
+							<goal>build</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>push-docker-image-to-registry</id>
+						<phase>deploy</phase>
+						<goals>
+							<goal>push</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
