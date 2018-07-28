@@ -26,13 +26,17 @@ COPY Dockerfile /usr/src/app
 RUN rm -rf target && mvn -T 1C package
 
 
-WORKDIR /usr/src/app/target/
-RUN ls
+#WORKDIR /usr/src/app/target/
+#RUN ls
 
-ENTRYPOINT ["/usr/bin/java", "-jar", "/usr/share/spring-boot-mongo-service/spring-boot-mongo-service.jar"]
+#Execute the JAR
+#ARG artifactid
+#ARG version
+#ENV artifact ${artifactid}-${version}.jar 
 
-# Add Maven dependencies (not shaded into the artifact; Docker-cached)
-ADD target/lib           /usr/share/spring-boot-mongo-service/lib
-# Add the service itself
-ARG JAR_FILE
-ADD target/${JAR_FILE} /usr/share/spring-boot-mongo-service/spring-boot-mongo-service.jar
+#COPY /target/spring-boot-mongo-docker-*.jar  app.jar
+#ENV JAVA_OPTS=""
+#ENTRYPOINT exec java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar app.jar
+#EXPOSE 8080
+#ENTRYPOINT ["sh", "-c"]
+#CMD ["java -jar spring-boot-mongo-docker-*.jar"] 
