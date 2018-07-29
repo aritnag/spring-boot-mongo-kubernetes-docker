@@ -8,15 +8,15 @@ ENV LC_ALL          en_US.UTF-8
 
 RUN apk update && \
     apk upgrade && \
-  apk install -y --no-install-recommends locales && \
+  apk install --no-install-recommends locales && \
   locale-gen en_US.UTF-8 && \
-  apk dist-upgrade -y && \
+  apk dist-upgrade && \
   apk --purge remove openjdk* && \
   echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 select true" | debconf-set-selections && \
   echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu xenial main" > /etc/apt/sources.list.d/webupd8team-java-trusty.list && \
   apt-key adv --keyserver keyserver.ubuntu.com --recv-keys EEA14886 && \
   apk update && \
-  apk install -y --no-install-recommends oracle-java8-installer oracle-java8-set-default && \
+  apk install --no-install-recommends oracle-java8-installer oracle-java8-set-default && \
   apk clean all
 # ----
 # Install Maven
