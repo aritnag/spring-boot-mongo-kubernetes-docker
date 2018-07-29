@@ -17,13 +17,11 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
 
-		<!-- IntelliJ grouses the following dynamic properties. Workaround: Settings 
-			> Build, Execution, Development > Build Tools > Maven > Runner > Properties. 
-			Add git.commit.time and git.commit.id.abbrev with empty value. -->
+		<!-- IntelliJ grouses the following dynamic properties. Workaround: Settings > Build, Execution, Development > Build Tools > Maven > Runner > Properties. Add git.commit.time and git.commit.id.abbrev with empty value. -->
 		<version.number>${git.commit.time}.${git.commit.id.abbrev}</version.number>
 		<docker.repository.name>aritranag20/${project.artifactId}</docker.repository.name>
 		<!-- Instead of docker hub, you can use your own registry: -->
-		<!--<docker.repository.name>registry.domain.de/group/${project.artifactId}</docker.repository.name> -->
+		<!--<docker.repository.name>registry.domain.de/group/${project.artifactId}</docker.repository.name>-->
 	</properties>
 
 	<dependencies>
@@ -59,17 +57,19 @@
 			<plugin>
 				<groupId>pl.project13.maven</groupId>
 				<artifactId>git-commit-id-plugin</artifactId>
-				<version>2.1.15</version>
+				<version>2.2.1</version>
 				<executions>
 					<execution>
+						<phase>validate</phase>
 						<goals>
 							<goal>revision</goal>
 						</goals>
 					</execution>
 				</executions>
 				<configuration>
+					<dateFormat>yyyyMMdd-HHmmss</dateFormat><!--  human-readable part of the version id -->
 					<dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
-					<!-- more config here as you see fit -->
+					<generateGitPropertiesFile>false</generateGitPropertiesFile><!-- somehow necessary. otherwise the variables are not available in the pom -->
 				</configuration>
 			</plugin>
 
@@ -79,8 +79,7 @@
 				<version>0.15.9</version>
 				<extensions>true</extensions>
 				<configuration>
-					<authConfig> <!-- or use "docker login" up front to store the credentials on the local 
-							machine. -->
+					<authConfig> <!-- or use "docker login" up front to store the credentials on the local machine. -->
 						<username>aritranag20</username>
 						<password>1qaz@WSX</password>
 					</authConfig>
@@ -101,8 +100,7 @@
 								</ports>
 								<cmd>
 									<shell>
-										java -jar
-										/maven/${project.artifactId}-${version.number}.jar
+										java -jar /maven/${project.artifactId}-${version.number}.jar
 									</shell>
 								</cmd>
 							</build>
@@ -138,7 +136,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-deploy-plugin</artifactId>
 				<configuration>
-					<skip>true</skip> <!-- we push the image instead -->
+					<skip>true</skip> <!--  we push the image instead  -->
 				</configuration>
 			</plugin>
 		</plugins>

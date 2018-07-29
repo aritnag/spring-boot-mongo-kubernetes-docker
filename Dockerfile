@@ -1,23 +1,48 @@
-FROM alpine
-LABEL MAINTAINER Michael Laccetti <michael@laccetti.com> <https://laccetti.com/)
+#
+# NOTE: THIS DOCKERFILE IS GENERATED VIA "update.sh"
+#
+# PLEASE DO NOT EDIT IT DIRECTLY.
+#
 
-ENV DEBIAN_FRONTEND noninteractive
-ENV JAVA_HOME       /usr/lib/jvm/java-8-oracle
-ENV LANG            en_US.UTF-8
-ENV LC_ALL          en_US.UTF-8
+FROM alpine:3.8
 
-RUN apk update && \
-    apk upgrade && \
-  apk install --no-install-recommends locales && \
-  locale-gen en_US.UTF-8 && \
-  apk dist-upgrade && \
-  apk --purge remove openjdk* && \
-  echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 select true" | debconf-set-selections && \
-  echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu xenial main" > /etc/apt/sources.list.d/webupd8team-java-trusty.list && \
-  apt-key adv --keyserver keyserver.ubuntu.com --recv-keys EEA14886 && \
-  apk update && \
-  apk install --no-install-recommends oracle-java8-installer oracle-java8-set-default && \
-  apk clean all
+# A few reasons for installing distribution-provided OpenJDK:
+#
+#  1. Oracle.  Licensing prevents us from redistributing the official JDK.
+#
+#  2. Compiling OpenJDK also requires the JDK to be installed, and it gets
+#     really hairy.
+#
+#     For some sample build times, see Debian's buildd logs:
+#       https://buildd.debian.org/status/logs.php?pkg=openjdk-8
+
+# Default to UTF-8 file.encoding
+ENV LANG C.UTF-8
+
+# add a simple script that can auto-detect the appropriate JAVA_HOME value
+# based on whether the JDK or only the JRE is installed
+RUN { \
+		echo '#!/bin/sh'; \
+		echo 'set -e'; \
+		echo; \
+		echo 'dirname "$(dirname "$(readlink -f "$(which javac || which java)")")"'; \
+	} > /usr/local/bin/docker-java-home \
+	&& chmod +x /usr/local/bin/docker-java-home
+ENV JAVA_HOME /usr/lib/jvm/java-1.8-openjdk
+ENV PATH $PATH:/usr/lib/jvm/java-1.8-openjdk/jre/bin:/usr/lib/jvm/java-1.8-openjdk/bin
+
+ENV JAVA_VERSION 8u171
+ENV JAVA_ALPINE_VERSION 8.171.11-r0
+
+RUN set -x \
+	&& apk add --no-cache \
+		openjdk8="$JAVA_ALPINE_VERSION" \
+	&& [ "$JAVA_HOME" = "$(docker-java-home)" ]
+
+# If you're reading this and have any feedback on how this image could be
+# improved, please open an issue or a pull request so we can discuss it!
+#
+#   https://github.com/docker-library/openjdk/issues
 # ----
 # Install Maven
 RUN apk add --no-cache curl tar bash
@@ -33,17 +58,17 @@ ENV MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
 ENTRYPOINT ["/usr/bin/mvn"]
 # ----
 # Install GIT
-RUN apk update
-RUN apk install git-core
+RUN apk update && apk upgrade && \
+    apk add --no-cache bash git openssh
 RUN git --version
 # Install project dependencies and keep sources
 # make source folder
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 # install maven dependency packages (keep in image)
-#COPY pom.xml /usr/src/app
+COPY pom.xml /usr/src/app
 # copy other source files (keep in image)
-#COPY src /usr/src/app/src
+COPY src /usr/src/app/src
 # package the contents
 #COPY Dockerfile /usr/src/app
 RUN git clone https://github.com/aritnag/spring-boot-mongo-kubernetes-docker.git
