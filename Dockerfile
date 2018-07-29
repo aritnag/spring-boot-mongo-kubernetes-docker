@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM alpine
 LABEL MAINTAINER Michael Laccetti <michael@laccetti.com> <https://laccetti.com/)
 
 ENV DEBIAN_FRONTEND noninteractive
