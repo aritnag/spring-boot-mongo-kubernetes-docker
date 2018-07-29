@@ -20,7 +20,7 @@ RUN apt-get update && \
   apt-get clean all
 # ----
 # Install Maven
-RUN apk add --no-cache curl tar bash
+RUN apt-get add --no-cache curl tar bash
 ARG MAVEN_VERSION=3.3.9
 ARG USER_HOME_DIR="/root"
 RUN mkdir -p /usr/share/maven && \
