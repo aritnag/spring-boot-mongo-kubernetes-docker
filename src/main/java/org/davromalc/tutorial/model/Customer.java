@@ -17,5 +17,6 @@ public class Customer {
     public String location;
     public String country;
     public String phonenumber;
+    public String middleName;
 
 }
