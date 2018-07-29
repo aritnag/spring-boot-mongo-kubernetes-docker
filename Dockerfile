@@ -7,6 +7,7 @@ ENV LANG            en_US.UTF-8
 ENV LC_ALL          en_US.UTF-8
 
 RUN apt-get update && \
+    apt-get upgrade && \
   apt-get install -y --no-install-recommends locales && \
   locale-gen en_US.UTF-8 && \
   apt-get dist-upgrade -y && \
@@ -19,7 +20,7 @@ RUN apt-get update && \
   apt-get clean all
 # ----
 # Install Maven
-#RUN apk add --no-cache curl tar bash
+RUN apk add --no-cache curl tar bash
 ARG MAVEN_VERSION=3.3.9
 ARG USER_HOME_DIR="/root"
 RUN mkdir -p /usr/share/maven && \
