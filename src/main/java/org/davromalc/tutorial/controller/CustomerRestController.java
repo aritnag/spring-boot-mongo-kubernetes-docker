@@ -27,14 +27,14 @@ public class CustomerRestController {
 		return customers;
 	}
 	
-	@RequestMapping("customer/{firstName}")
+	@RequestMapping("customer/first/{firstName}")
 	public Customer findByFirstName(@PathVariable("firstName") String firstName){
 		final Customer customer = repository.findByFirstName(firstName);
 		log.info("Fetching customers from database {}" , customer);
 		return customer;
 	}
 	
-	@RequestMapping("customer/{lastName}")
+	@RequestMapping("customer/last/{lastName}")
 	public List<Customer> findByLastName(@PathVariable("lastName") String lastName){
 		final List<Customer> customer = repository.findByLastName(lastName);
 		log.info("Fetching customers from database {}" , customer);
