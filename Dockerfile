@@ -1,15 +1,22 @@
-# Ubuntu 15.04 with Java 8 installed.
-# Build image with:  docker build -t krizsan/ubuntu1504java8:v1 .
-FROM ubuntu:15.04
-MAINTAINER Ivan Krizsan, https://github.com/krizsan
+FROM ubuntu:16.04
+LABEL MAINTAINER Michael Laccetti <michael@laccetti.com> <https://laccetti.com/)
+
+ENV DEBIAN_FRONTEND noninteractive
+ENV JAVA_HOME       /usr/lib/jvm/java-8-oracle
+ENV LANG            en_US.UTF-8
+ENV LC_ALL          en_US.UTF-8
+
 RUN apt-get update && \
-    apt-get upgrade -y && \
-    apt-get install -y  software-properties-common && \
-    add-apt-repository ppa:webupd8team/java -y && \
-    apt-get update && \
-    echo oracle-java7-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections && \
-    apt-get install -y oracle-java8-installer && \
-    apt-get clean
+  apt-get install -y --no-install-recommends locales && \
+  locale-gen en_US.UTF-8 && \
+  apt-get dist-upgrade -y && \
+  apt-get --purge remove openjdk* && \
+  echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 select true" | debconf-set-selections && \
+  echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu xenial main" > /etc/apt/sources.list.d/webupd8team-java-trusty.list && \
+  apt-key adv --keyserver keyserver.ubuntu.com --recv-keys EEA14886 && \
+  apt-get update && \
+  apt-get install -y --no-install-recommends oracle-java8-installer oracle-java8-set-default && \
+  apt-get clean all
 # ----
 # Install Maven
 RUN apk add --no-cache curl tar bash
