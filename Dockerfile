@@ -6,21 +6,21 @@ ENV JAVA_HOME       /usr/lib/jvm/java-8-oracle
 ENV LANG            en_US.UTF-8
 ENV LC_ALL          en_US.UTF-8
 
-RUN apt-get update && \
-    apt-get upgrade && \
-  apt-get install -y --no-install-recommends locales && \
+RUN apk update && \
+    apk upgrade && \
+  apk install -y --no-install-recommends locales && \
   locale-gen en_US.UTF-8 && \
-  apt-get dist-upgrade -y && \
-  apt-get --purge remove openjdk* && \
+  apk dist-upgrade -y && \
+  apk --purge remove openjdk* && \
   echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 select true" | debconf-set-selections && \
   echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu xenial main" > /etc/apt/sources.list.d/webupd8team-java-trusty.list && \
   apt-key adv --keyserver keyserver.ubuntu.com --recv-keys EEA14886 && \
-  apt-get update && \
-  apt-get install -y --no-install-recommends oracle-java8-installer oracle-java8-set-default && \
-  apt-get clean all
+  apk update && \
+  apk install -y --no-install-recommends oracle-java8-installer oracle-java8-set-default && \
+  apk clean all
 # ----
 # Install Maven
-RUN apt-get add --no-cache curl tar bash
+RUN apk add --no-cache curl tar bash
 ARG MAVEN_VERSION=3.3.9
 ARG USER_HOME_DIR="/root"
 RUN mkdir -p /usr/share/maven && \
@@ -33,8 +33,8 @@ ENV MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
 ENTRYPOINT ["/usr/bin/mvn"]
 # ----
 # Install GIT
-RUN apt-get update
-RUN apt-get install git-core
+RUN apk update
+RUN apk install git-core
 RUN git --version
 # Install project dependencies and keep sources
 # make source folder
