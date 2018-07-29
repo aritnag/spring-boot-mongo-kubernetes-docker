@@ -13,16 +13,21 @@ ENV MAVEN_CONFIG "$USER_HOME_DIR/.m2"
 ENV MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
 ENTRYPOINT ["/usr/bin/mvn"]
 # ----
+# Install GIT
+RUN apt-get update
+RUN apt-get install git-core
+RUN git --version
 # Install project dependencies and keep sources
 # make source folder
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 # install maven dependency packages (keep in image)
-COPY pom.xml /usr/src/app
+#COPY pom.xml /usr/src/app
 # copy other source files (keep in image)
-COPY src /usr/src/app/src
+#COPY src /usr/src/app/src
 # package the contents
-COPY Dockerfile /usr/src/app
+#COPY Dockerfile /usr/src/app
+RUN git clone https://github.com/aritnag/spring-boot-mongo-kubernetes-docker.git
 RUN rm -rf target && mvn -T 1C package
 
 
