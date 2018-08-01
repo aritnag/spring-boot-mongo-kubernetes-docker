@@ -79,7 +79,7 @@ spec:
         - image: aritranag20/spring-boot-mongo-docker
           name: spring-boot-mongo-docker
           ports: 
-            - containerPort: 8080
+            - containerPort: 8000
 ---
 apiVersion: v1
 kind: Service
@@ -89,8 +89,8 @@ metadata:
       run: spring-boot-mongo-docker
 spec:
   ports:
-    - port: 80
-      targetPort: 8080
+    - port: 8000
+      targetPort: 8000
   selector:
     run: spring-boot-mongo-docker
   type: LoadBalancer
